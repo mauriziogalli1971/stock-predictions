@@ -1,0 +1,7 @@
+.loading-panel {
+    display: none;
+}
+
+.loading-panel.show {
+    display: block;
+}
