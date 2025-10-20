@@ -1,5 +1,7 @@
-export const POLYGON_API_KEY = import.meta.env.VITE_POLYGON_API_KEY;
-export const OPENAI_API_KEY = import.meta.env.VITE_SP_API_KEY;
+const isVite = typeof import.meta !== "undefined" && import.meta.env;
+export const POLYGON_API_KEY = isVite
+  ? import.meta.env.VITE_POLYGON_API_KEY
+  : undefined;
 export const TICKER_MIN_LENGTH = 3;
 export const MAX_TICKERS = 3;
 export const MAX_REPORT_WORDS = 150;
