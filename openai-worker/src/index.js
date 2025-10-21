@@ -23,7 +23,7 @@ export default {
 		}
 
 		const json = await request.json();
-		const tickerIterator = fetchTickerData(json);
+		const tickerIterator = fetchTickerData(json, env.POLYGON_API_KEY);
 		const tickerData = [];
 		let result = await tickerIterator.next();
 		while (!result.done) {
@@ -80,26 +80,26 @@ export default {
 		} catch (error) {
 			return new Response(`Bad Request: ${error}`, { status: 400, headers: corsHeaders });
 		}
-
-		async function* fetchTickerData(tickers) {
-			for (const ticker of tickers) {
-				const url = `https://api.polygon.io/v2/aggs/ticker/${ticker}/range/1/day/${DATES.startDate}/${DATES.endDate}?apiKey=${env.POLYGON_API_KEY}`;
-				try {
-					const response = await fetch(url);
-
-					if (!response.ok) {
-						throw new Error(`HTTP error! status: ${response.status}`);
-					}
-
-					const data = await response.json();
-					yield data;
-				} catch (error) {
-					console.error('Error fetching data:', error);
-				}
-			}
-		}
 	},
 };
+
+async function* fetchTickerData(tickers, apiKey) {
+	for (const ticker of tickers) {
+		const url = `https://api.polygon.io/v2/aggs/ticker/${ticker}/range/1/day/${DATES.startDate}/${DATES.endDate}?apiKey=${apiKey}`;
+		try {
+			const response = await fetch(url);
+
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`);
+			}
+
+			const data = await response.json();
+			yield data;
+		} catch (error) {
+			console.error('Error fetching data:', error);
+		}
+	}
+}
 
 function formatDate(date) {
 	const yyyy = date.getFullYear();
