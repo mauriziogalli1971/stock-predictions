@@ -1,5 +1,11 @@
 import { OpenAI } from 'openai';
-import { MAX_DAYS, MAX_REPORT_WORDS } from '../../src/utils/config';
+
+const MAX_REPORT_WORDS = 150;
+const MAX_DAYS = 90;
+const DATES = {
+	startDate: getDateNDaysAgo(MAX_DAYS), // alter days to increase/decrease data set
+	endDate: getDateNDaysAgo(1), // leave at 1 to get yesterday's data
+};
 
 export default {
 	async fetch(request, env) {
@@ -17,12 +23,17 @@ export default {
 		}
 
 		const json = await request.json();
-		const data = JSON.stringify(json);
+		const tickerIterator = fetchTickerData(json);
+		const tickerData = [];
+		let result = await tickerIterator.next();
+		while (!result.done) {
+			tickerData.push(await result.value);
+			result = await tickerIterator.next();
+		}
 
 		const openai = new OpenAI({
 			apiKey: env.OPENAI_API_KEY,
 		});
-
 		const messages = [
 			{
 				role: 'system',
@@ -32,12 +43,13 @@ export default {
           You are asked to analyze up to 3 stock tickers' data over a ${MAX_DAYS}-days span.
           Write a report shorter than ${MAX_REPORT_WORDS + 1} words that is as accurate as possible.
           Style the report by looking at the examples below enclosed in triple hashes (###).
+          Emphasize only ticker symbols, company names, and stock prices in bold.
           `,
 			},
 			{
 				role: 'user',
 				content: `
-          Here is the data: ${data} and the examples.
+          Here is the data: ${JSON.stringify(tickerData)} and the examples.
           ###
           OK baby, hold on tight! You are going to haate this! Over the past three days, Tesla (TSLA) shares have plummetted. The stock opened at $223.98 and closed at $202.11 on the third day, with some jumping around in the meantime. This is a great time to buy, baby! But not a great time to sell! But I'm not done! Apple (AAPL) stocks have gone stratospheric! This is a seriously hot stock right now. They opened at $166.38 and closed at $182.89 on day three. So all in all, I would hold on to Tesla shares tight if you already have them - they might bounce right back up and head to the stars! They are volatile stock, so expect the unexpected. For APPL stock, how much do you need the money? Sell now and take the profits or hang on and wait for more! If it were me, I would hang on because this stock is on fire right now!!! Apple are throwing a Wall Street party and y'all invited!
           ###
@@ -68,5 +80,36 @@ export default {
 		} catch (error) {
 			return new Response(`Bad Request: ${error}`, { status: 400, headers: corsHeaders });
 		}
+
+		async function* fetchTickerData(tickers) {
+			for (const ticker of tickers) {
+				const url = `https://api.polygon.io/v2/aggs/ticker/${ticker}/range/1/day/${DATES.startDate}/${DATES.endDate}?apiKey=${env.POLYGON_API_KEY}`;
+				try {
+					const response = await fetch(url);
+
+					if (!response.ok) {
+						throw new Error(`HTTP error! status: ${response.status}`);
+					}
+
+					const data = await response.json();
+					yield data;
+				} catch (error) {
+					console.error('Error fetching data:', error);
+				}
+			}
+		}
 	},
 };
+
+function formatDate(date) {
+	const yyyy = date.getFullYear();
+	const mm = String(date.getMonth() + 1).padStart(2, '0');
+	const dd = String(date.getDate()).padStart(2, '0');
+	return `${yyyy}-${mm}-${dd}`;
+}
+
+function getDateNDaysAgo(n) {
+	const now = new Date(); // current date and time
+	now.setDate(now.getDate() - n); // subtract n days
+	return formatDate(now);
+}

@@ -1,6 +1,8 @@
-import { DATES, MAX_TICKERS, POLYGON_API_KEY, TICKER_MIN_LENGTH, } from "./utils/config.js";
 import { useEffect, useRef, useState } from "react";
 import { marked } from "marked";
+
+const TICKER_MIN_LENGTH = 3;
+const MAX_TICKERS = 3;
 
 function App() {
   const [report, setReport] = useState(null);
@@ -28,23 +30,14 @@ function App() {
   };
 
   const canAddTicker = () => {
-    return tickers.length < MAX_TICKERS;
+    return !report && tickers.length < MAX_TICKERS;
   };
 
   const handleGenerateReport = () => {
     return async () => {
       loadingPanel.current.classList.add("show");
 
-      const tickerIterator = fetchTickerData();
-      const tickerData = [];
-
-      let result = await tickerIterator.next();
-      while (!result.done) {
-        tickerData.push(await result.value);
-        result = await tickerIterator.next();
-      }
-
-      const response = await fetchReport(tickerData);
+      const response = await fetchReport(tickers);
       const report = await response.text();
       setReport(report);
 
@@ -52,7 +45,7 @@ function App() {
     };
   };
 
-  async function fetchReport(tickerData) {
+  async function fetchReport(tickers) {
     const workerUrl = import.meta.env.DEV
       ? "http://localhost:8787"
       : "https://openai-worker.mauriziogalli1971.workers.dev/";
@@ -62,26 +55,8 @@ function App() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(tickerData),
+      body: JSON.stringify(tickers),
     });
-  }
-
-  async function* fetchTickerData() {
-    for (const ticker of tickers) {
-      const url = `https://api.polygon.io/v2/aggs/ticker/${ticker}/range/1/day/${DATES.startDate}/${DATES.endDate}?apiKey=${POLYGON_API_KEY}`;
-      try {
-        const response = await fetch(url);
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        yield data;
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    }
   }
 
   function ReportParser() {
