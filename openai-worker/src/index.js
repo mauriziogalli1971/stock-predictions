@@ -10,7 +10,7 @@ const DATES = {
 export default {
 	async fetch(request, env) {
 		const corsHeaders = {
-			'Access-Control-Allow-Origin': 'http://localhost:5173', // or your site origin
+			'Access-Control-Allow-Origin': 'http://localhost:5173',
 			'Access-Control-Allow-Methods': 'POST, OPTIONS',
 			'Access-Control-Allow-Headers': 'Content-Type',
 		};
