@@ -168,3 +168,4 @@ wrangler.jsonc
 
 .editorconfig
 /.vscode/
+package-lock.json
