@@ -2,12 +2,14 @@ import { OpenAI } from "openai";
 
 const MAX_REPORT_WORDS = 150;
 const MAX_DAYS = 3;
-const DATES = {
+const dates = {
 	startDate: getDateNDaysAgo(MAX_DAYS), // alter days to increase/decrease data set
 	endDate: getDateNDaysAgo(1), // leave at 1 to get yesterday's data
 };
 const GATEWAY_URL =
 	"https://gateway.ai.cloudflare.com/v1/4892e0000e9e2f5967571b3c44400136/stock-predictions/openai";
+const POLYGON_WORKER_URL =
+	"https://polygon-worker.mauriziogalli1971.workers.dev/";
 
 const CORS_HEADERS = {
 	"Access-Control-Allow-Origin": "*",
@@ -36,21 +38,18 @@ export default {
 		}
 
 		try {
-			const json = await request.json();
-			if (!json || !Array.isArray(json) || json.length === 0) {
+			const tickers = await request.json();
+			if (!tickers || !Array.isArray(tickers) || tickers.length === 0) {
 				throw new Error(
 					"Invalid JSON format. Please provide an array of tickers."
 				);
 			}
 
-			const tickerData = await Promise.all(
-				fetchTickerData(json, env.POLYGON_API_KEY)
-			);
-			// Check if all requests failed
-			const successfulFetches = tickerData.filter((data) => !data.error);
-			if (successfulFetches.length === 0) {
-				throw new Error("Failed to fetch data for all tickers");
-			}
+			const polygonResponse = await fetch(POLYGON_WORKER_URL, {
+				method: "POST",
+				body: JSON.stringify({ dates, tickers }),
+			});
+			const tickerData = await polygonResponse.json();
 
 			const openai = new OpenAI({
 				apiKey: env.OPENAI_API_KEY,
@@ -74,44 +73,19 @@ export default {
 					},
 				});
 			} catch (error) {
-				return new Response(`Bad Request: ${error}`, {
+				return new Response(`OPENAI Bad Request: ${error}`, {
 					status: 400,
 					headers: CORS_HEADERS,
 				});
 			}
 		} catch (error) {
-			return new Response(`Bad Request: ${error}`, {
+			return new Response(`POLYGON Bad Request: ${error}`, {
 				status: 400,
 				headers: CORS_HEADERS,
 			});
 		}
 	},
 };
-
-function fetchTickerData(tickers, apiKey) {
-	const promises = [];
-	for (const ticker of tickers) {
-		const url = `https://api.polygon.io/v2/aggs/ticker/${ticker}/range/1/day/${DATES.startDate}/${DATES.endDate}`;
-		promises.push(
-			fetch(url, {
-				headers: {
-					Authorization: `Bearer ${apiKey}`,
-				},
-			})
-				.then((response) => response.json())
-				.then((data) => {
-					delete data.request_id;
-					console.log(data);
-					return data;
-				})
-				.catch((error) => {
-					console.error("Error fetching data:", error);
-					return { error: true, ticker, message: error.message };
-				})
-		);
-	}
-	return promises;
-}
 
 function getMessages(tickerData) {
 	return [

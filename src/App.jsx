@@ -4,6 +4,17 @@ import { marked } from "marked";
 const TICKER_MIN_LENGTH = 3;
 const MAX_TICKERS = 3;
 
+const OPENAI_WORKER_URL = import.meta.env.DEV
+  ? "http://localhost:8787"
+  : "https://openai-worker.mauriziogalli1971.workers.dev/";
+const REQUEST_CONFIG = {
+  method: "POST",
+  mode: "cors",
+  headers: {
+    "Content-Type": "application/json",
+  },
+};
+
 function App() {
   const [report, setReport] = useState(null);
   const [tickers, setTickers] = useState([]);
@@ -37,27 +48,16 @@ function App() {
     return async () => {
       loadingPanel.current.classList.add("show");
 
-      const response = await fetchReport(tickers);
-      const report = await response.text();
+      const report = await fetch(OPENAI_WORKER_URL, {
+        ...REQUEST_CONFIG,
+        body: JSON.stringify(tickers),
+      }).then((res) => res.text());
+
       setReport(report);
 
       loadingPanel.current.classList.remove("show");
     };
   };
-
-  async function fetchReport(tickers) {
-    const workerUrl = import.meta.env.DEV
-      ? "http://localhost:8787"
-      : "https://openai-worker.mauriziogalli1971.workers.dev/";
-    return await fetch(workerUrl, {
-      method: "POST",
-      mode: "cors",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(tickers),
-    });
-  }
 
   function ReportParser() {
     return (
