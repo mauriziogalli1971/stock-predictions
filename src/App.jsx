@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { marked } from "marked";
+import loaderSvg from "./assets/img/loader.svg";
 
 const TICKER_MIN_LENGTH = 3;
 const MAX_TICKERS = 3;
@@ -169,7 +170,7 @@ function App() {
               </p>
               <div className="loading-panel" ref={loadingPanel}>
                 <div>Querying Stocks API...</div>
-                <img src="/src/assets/img/loader.svg" alt="loading" />
+                <img src={loaderSvg} alt="loading" />
               </div>
             </>
           )}
