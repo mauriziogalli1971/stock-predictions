@@ -22,7 +22,7 @@ export default {
       if (!json) {
         throw new Error("Invalid JSON format.");
       }
-      console.log(json);
+
       const { dates, tickers } = json;
       if (!Array.isArray(tickers) || tickers.length === 0) {
         throw new Error(

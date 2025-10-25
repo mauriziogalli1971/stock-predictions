@@ -55,9 +55,6 @@ export default {
 			}
 
 			const tickerData = await polygonResponse.json();
-
-			console.log("tickerData", JSON.stringify(tickerData));
-
 			const openai = new OpenAI({
 				apiKey: env.OPENAI_API_KEY,
 				baseURL: GATEWAY_URL,
