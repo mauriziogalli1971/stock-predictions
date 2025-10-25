@@ -8,8 +8,6 @@ const dates = {
 };
 const GATEWAY_URL =
 	"https://gateway.ai.cloudflare.com/v1/4892e0000e9e2f5967571b3c44400136/stock-predictions/openai";
-const POLYGON_WORKER_URL =
-	"https://polygon-worker.mauriziogalli1971.workers.dev/";
 
 const CORS_HEADERS = {
 	"Access-Control-Allow-Origin": "*",
@@ -45,11 +43,20 @@ export default {
 				);
 			}
 
-			const polygonResponse = await fetch(POLYGON_WORKER_URL, {
+			const tickerRequest = new Request("http://polygon-worker", {
 				method: "POST",
+				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ dates, tickers }),
 			});
+			const polygonResponse = await env.POLYGON_WORKER.fetch(tickerRequest);
+
+			if (!polygonResponse.ok) {
+				throw new Error("Failed to fetch data from Polygon worker");
+			}
+
 			const tickerData = await polygonResponse.json();
+
+			console.log("tickerData", JSON.stringify(tickerData));
 
 			const openai = new OpenAI({
 				apiKey: env.OPENAI_API_KEY,
