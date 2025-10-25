@@ -76,3 +76,76 @@ The application consists of three main components:
 ## Development
 
 ### Run the frontend:
+
+The application will be available at `http://localhost:5173`
+
+### Run workers locally:
+
+**OpenAI Worker:**
+
+**Polygon Worker:**
+
+Note: When running workers locally, update your `.env` file with the local worker URLs (typically
+`http://localhost:8787`).
+
+## Deployment
+
+### Deploy Cloudflare Workers:
+
+**OpenAI Worker:**
+
+**Polygon Worker:**
+
+```bash
+cd polygon-worker
+npx wrangler deploy
+```
+
+After deployment, update your file with the production worker URLs. `.env`
+
+### Deploy Frontend:
+
+Build the production bundle:
+
+```bash
+npm run build
+````
+
+The built files will be in the `dist/` directory, ready to be deployed to your hosting platform of choice (Cloudflare
+Pages, Vercel, Netlify, etc.).
+
+## Usage
+
+1. Enter 1-3 stock ticker symbols (e.g., AAPL, GOOGL, MSFT)
+2. Click "Generate Report"
+3. View AI-generated analysis with real-time market data
+
+## Project Structure
+
+````
+stock-predictions/
+├── src/                    # Frontend React application
+│   ├── components/         # React components
+│   ├── App.jsx            # Main application component
+│   └── main.jsx           # Application entry point
+├── openai-worker/         # OpenAI API Cloudflare Worker
+│   └── src/
+│       └── index.js       # Worker handler
+├── polygon-worker/        # Polygon.io API Cloudflare Worker
+│   └── src/
+│       └── index.js       # Worker handler
+├── public/                # Static assets
+├── .env.example           # Environment variables template
+└── package.json           # Root dependencies
+````
+
+## Technologies Used
+
+- **React 19** - UI framework
+- **Vite** - Build tool and dev server
+- **Bootstrap 5** - CSS framework
+- **Cloudflare Workers** - Serverless API endpoints
+- **OpenAI GPT** - AI-powered report generation
+-
+    - Real-time stock market data **Polygon.io API**
+- **Marked** - Markdown parsing and rendering
