@@ -1,67 +1,78 @@
 # Stock Predictions App
 
-This application provides an interactive interface to generate concise, colorful stock prediction reports for up to
-three ticker symbols using React and Vite.
+An interactive web application that generates AI-powered stock prediction reports using real-time market data. Built
+with React, Vite, and Cloudflare Workers.
 
 ## Features
 
-- **Input up to 3 stock ticker symbols** to analyze their recent market performance.
-- **ChatGPT-generated reports:** Powered by OpenAI's GPT model for natural language reports, constrained to 150 words
-  for clarity.
-- **Automated stock data fetching** from Polygon.io's stock market API.
-- **UX enhancements** with Bootstrap 5 styling and React's stateful, interactive UI.
-- **Live Markdown rendering** using the `marked` library for readable, styled reports.
-- **Configurable via environment variables** for API keys (see `.env.example`).
+- **Multi-ticker analysis** - Analyze up to 3 stock ticker symbols simultaneously
+- **AI-powered insights** - GPT-generated reports with concise market analysis (150 words max)
+- **Real-time stock data** - Automated data fetching from Polygon.io REST API
+- **Serverless architecture** - Cloudflare Workers for scalable API endpoints
+- **Modern UI** - Bootstrap 5 styling with responsive design
+- **Markdown rendering** - Beautiful report formatting using the `marked` library
+- **Environment-based configuration** - Secure API key management
 
-## Getting Started
+## Architecture
 
-1. **Install dependencies:**
+The application consists of three main components:
+
+- **Frontend** (`/src`) - React 19 + Vite application
+- **OpenAI Worker** (`/openai-worker`) - Cloudflare Worker for GPT-based report generation
+- **Polygon Worker** (`/polygon-worker`) - Cloudflare Worker for stock market data retrieval
+
+## Prerequisites
+
+- Node.js (LTS version recommended)
+- npm package manager
+- Cloudflare account (for worker deployment)
+- API Keys:
+    - [OpenAI API Key](https://platform.openai.com/api-keys)
+    - [Polygon.io API Key](https://polygon.io/)
+
+## Installation
+
+1. **Clone the repository:**
+
+   ```bash
+   git clone <your-repo-url>
+   cd stock-predictions
+   ```
+
+2. **Install root dependencies:**
 
    ```bash
    npm install
    ```
 
-2. **Configure environment variables:**
-
-   Copy `.env.example` to `.env` and provide your own API keys.
-
-3. **Run the application:**
+3. **Install worker dependencies:**
 
    ```bash
-   npm run dev
+   cd openai-worker && npm install && cd ..
+   cd polygon-worker && npm install && cd ..
    ```
 
-   Open [http://localhost:5173](http://localhost:5173) to view the app.
+4. **Configure environment variables:**
 
-## Core Stack
+   Create a `.env` file in the root directory (use `.env.example` as template):
 
-- **React 19**
-- **Vite** (for fast dev environment and HMR)
-- **Bootstrap 5** (UI components)
-- **OpenAI** (for report generation)
-- **Polygon.io** (stock data API)
-- **Marked** (for Markdown rendering)
-- **ESLint + Prettier** for code style
+   ```env
+   VITE_OPENAI_WORKER_URL=<your-openai-worker-url>
+   VITE_POLYGON_WORKER_URL=<your-polygon-worker-url>
+   ```
 
-## Customizing & Extending
+   Configure worker secrets:
 
-- **ESLint:** For additional linting rules, see `eslint.config.js`.
-- **Styling:** Customize visual styles in `src/assets/css/style.css`.
-- **API keys:** Store sensitive keys in `.env`, never commit them.
-- **TypeScript:** If you need type safety, start
-  with [Vite’s React TypeScript template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts).
+   ```bash
+   # OpenAI Worker
+   cd openai-worker
+   npx wrangler secret put OPENAI_API_KEY
+   
+   # Polygon Worker
+   cd ../polygon-worker
+   npx wrangler secret put POLYGON_API_KEY
+   ```
 
-## Learn More
+## Development
 
-- [Vite Documentation](https://vitejs.dev)
-- [React Documentation](https://react.dev)
-- [Bootstrap Documentation](https://getbootstrap.com/docs/5.3/getting-started/introduction/)
-- [OpenAI Node.js SDK](https://www.npmjs.com/package/openai)
-- [Polygon.io Docs](https://polygon.io/docs/stocks/getting-started)
-
----
-
-**Disclaimer:** This project and the reports it generates are for entertainment and educational purposes only. No real
-financial advice is given.
-
-```
+### Run the frontend:
