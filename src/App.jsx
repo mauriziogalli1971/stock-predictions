@@ -4,10 +4,17 @@ import loaderSvg from "./assets/img/loader.svg";
 
 const TICKER_MIN_LENGTH = 3;
 const MAX_TICKERS = 3;
+const MAX_DAYS = 3;
+
+const dates = {
+  startDate: getDateNDaysAgo(MAX_DAYS), // alter days to increase/decrease data set
+  endDate: getDateNDaysAgo(1), // leave at 1 to get yesterday's data
+};
 
 const OPENAI_WORKER_URL = import.meta.env.DEV
   ? "http://localhost:8787"
   : "https://openai-worker.mauriziogalli1971.workers.dev/";
+
 const REQUEST_CONFIG = {
   method: "POST",
   mode: "cors",
@@ -51,7 +58,7 @@ function App() {
 
       const report = await fetch(OPENAI_WORKER_URL, {
         ...REQUEST_CONFIG,
-        body: JSON.stringify(tickers),
+        body: JSON.stringify({ dates, tickers }),
       }).then((res) => res.text());
 
       setReport(report);
@@ -184,3 +191,16 @@ function App() {
 }
 
 export default App;
+
+function formatDate(date) {
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function getDateNDaysAgo(n) {
+  const now = new Date(); // current date and time
+  now.setDate(now.getDate() - n); // subtract n days
+  return formatDate(now);
+}
