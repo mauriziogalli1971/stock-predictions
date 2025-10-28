@@ -17,10 +17,6 @@ const OPENAI_CONFIG = {
 
 export default {
   async fetch(request, env) {
-    const POLYGON_WORKER_URL =
-      env.POLYGON_WORKER_URL ||
-      "https://polygon-worker.mauriziogalli1971.workers.dev/";
-
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: CORS_HEADERS });
     }
@@ -33,7 +29,10 @@ export default {
     }
 
     try {
-      const polygonResponse = await fetch(POLYGON_WORKER_URL, request);
+      const polygonResponse = await env.POLYGON_WORKER.fetch(
+        "https://polygon-worker.mauriziogalli1971.workers.dev/",
+        request
+      );
       if (!polygonResponse.ok) {
         throw new Error("Failed to fetch data from Polygon worker");
       }
