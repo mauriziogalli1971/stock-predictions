@@ -18,7 +18,7 @@ with React, Vite, and Cloudflare Workers.
 The application consists of three main components:
 
 - **Frontend** (`/src`) - React 19 + Vite application
-- **OpenAI Worker** (`/openai-worker`) - Cloudflare Worker for GPT-based report generation
+- **OpenAI Worker** (`/stock-predictions-worker`) - Cloudflare Worker for GPT-based report generation
 - **Polygon Worker** (`/polygon-worker`) - Cloudflare Worker for stock market data retrieval
 
 ## Prerequisites
@@ -48,7 +48,7 @@ The application consists of three main components:
 3. **Install worker dependencies:**
 
    ```bash
-   cd openai-worker && npm install && cd ..
+   cd stock-predictions-worker && npm install && cd ..
    cd polygon-worker && npm install && cd ..
    ```
 
@@ -57,7 +57,7 @@ The application consists of three main components:
    Create a `.env` file in the root directory (use `.env.example` as template):
 
    ```env
-   VITE_OPENAI_WORKER_URL=<your-openai-worker-url>
+   VITE_OPENAI_WORKER_URL=<your-stock-predictions-worker-url>
    VITE_POLYGON_WORKER_URL=<your-polygon-worker-url>
    ```
 
@@ -65,7 +65,7 @@ The application consists of three main components:
 
    ```bash
    # OpenAI Worker
-   cd openai-worker
+   cd stock-predictions-worker
    npx wrangler secret put OPENAI_API_KEY
    
    # Polygon Worker
@@ -128,7 +128,7 @@ stock-predictions/
 │   ├── components/         # React components
 │   ├── App.jsx            # Main application component
 │   └── main.jsx           # Application entry point
-├── openai-worker/         # OpenAI API Cloudflare Worker
+├── stock-predictions-worker/         # OpenAI API Cloudflare Worker
 │   └── src/
 │       └── index.js       # Worker handler
 ├── polygon-worker/        # Polygon.io API Cloudflare Worker
