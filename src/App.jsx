@@ -13,7 +13,7 @@ const dates = {
 
 const OPENAI_WORKER_URL = import.meta.env.DEV
   ? "http://localhost:8787"
-  : "https://stock-predictions-worker.mauriziogalli1971.workers.dev/";
+  : "https://stock-predictions-worker-production.mauriziogalli1971.workers.dev/";
 
 const REQUEST_CONFIG = {
   method: "POST",

@@ -5,14 +5,19 @@
   "dev": {
     "port": 8788
   },
-  "vars": {
-    "POLYGON_API_KEY": "ZKnZNtp6AbiUWftKbn2A6hu5Zbs6QxOU",
-    "POLYGON_WORKER_URL": "http://localhost:8788"
-  },
   "observability": {
     "logs": {
       "enabled": true,
       "head_sampling_rate": 1
+    }
+  },
+  "env": {
+    "local": {
+      "vars": {
+        "CLOUDFLARE_INCLUDE_PROCESS_ENV": true
+      }
+    },
+    "production": {
     }
   }
 }
